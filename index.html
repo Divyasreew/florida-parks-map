@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Florida State Parks Map</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: "Open Sans", sans-serif;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+    .filter-bar {
+      padding: 10px;
+      background: #e0ece4;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    select {
+      padding: 5px;
+      font-size: 1rem;
+    }
+    #map {
+      height: 90vh;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<div class="filter-bar">
+  <select id="regionFilter">
+    <option value="">All Regions</option>
+    <option value="North">North</option>
+    <option value="Central">Central</option>
+    <option value="South">South</option>
+  </select>
+  <select id="activityFilter">
+    <option value="">All Activities</option>
+    <option value="Hiking">Hiking</option>
+    <option value="Camping">Camping</option>
+    <option value="Fishing">Fishing</option>
+  </select>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([28.0, -82.0], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const parks = [
+    { name: "Alafia River State Park", lat: 27.8, lng: -82.1, region: "Central", activity: "Hiking" },
+    { name: "Ichetucknee Springs", lat: 29.9, lng: -82.8, region: "North", activity: "Fishing" },
+    { name: "Bahia Honda", lat: 24.7, lng: -81.3, region: "South", activity: "Camping" }
+  ];
+
+  let markers = [];
+
+  function updateMap() {
+    const region = document.getElementById("regionFilter").value;
+    const activity = document.getElementById("activityFilter").value;
+
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    parks.forEach(p => {
+      if ((!region || p.region === region) && (!activity || p.activity === activity)) {
+        const marker = L.marker([p.lat, p.lng]).addTo(map)
+          .bindPopup(`<b>${p.name}</b><br>Region: ${p.region}<br>Activity: ${p.activity}`);
+        markers.push(marker);
+      }
+    });
+  }
+
+  document.getElementById("regionFilter").addEventListener("change", updateMap);
+  document.getElementById("activityFilter").addEventListener("change", updateMap);
+  updateMap();
+</script>
+
+</body>
+</html>
